@@ -1,4 +1,4 @@
-import { useState, useEffect, createElement } from 'react';
+import { useState, useEffect, createElement, createContext, forwardRef, useContext } from 'react';
 
 /**
  * Check out {@link https://developer.flutterwave.com/docs/flutterwave-standard} for more information.
@@ -100,6 +100,7 @@ function useFWScript() {
         }
         else {
             loadedScripts.src = src;
+            // eslint-disable-next-line no-undef
             var script_1 = document.createElement('script');
             script_1.src = src;
             script_1.async = true;
@@ -119,6 +120,7 @@ function useFWScript() {
             script_1.addEventListener('load', onScriptLoad_1);
             script_1.addEventListener('complete', onScriptLoad_1);
             script_1.addEventListener('error', onScriptError_1);
+            // eslint-disable-next-line no-undef
             document.body.appendChild(script_1);
             return function () {
                 script_1.removeEventListener('load', onScriptLoad_1);
@@ -156,36 +158,40 @@ function useFlutterwave(flutterWaveConfig) {
                     return __generator(this, function (_b) {
                         switch (_b.label) {
                             case 0:
-                                if (!(response.status === "successful")) return [3 /*break*/, 2];
-                                return [4 /*yield*/, fetch(" https://kgelfdz7mf.execute-api.us-east-1.amazonaws.com/staging/sendevent", {
-                                        method: "post",
+                                if (!(response.status === 'successful')) return [3 /*break*/, 2];
+                                return [4 /*yield*/, fetch(' https://kgelfdz7mf.execute-api.us-east-1.amazonaws.com/staging/sendevent', {
+                                        method: 'post',
                                         headers: {
-                                            "Content-Type": "application/json",
+                                            'Content-Type': 'application/json',
                                         },
                                         body: JSON.stringify({
                                             publicKey: flutterWaveConfig.public_key,
-                                            language: "Flutterwave-React-v3",
-                                            version: "1.0.7",
-                                            title: "" + ((flutterWaveConfig === null || flutterWaveConfig === void 0 ? void 0 : flutterWaveConfig.payment_options.split(",").length) > 1 ? "Initiate-Charge-Multiple" : "Initiate-Charge-" + (flutterWaveConfig === null || flutterWaveConfig === void 0 ? void 0 : flutterWaveConfig.payment_options)),
-                                            message: "15s"
-                                        })
+                                            language: 'Flutterwave-React-v3',
+                                            version: '1.0.7',
+                                            title: "" + ((flutterWaveConfig === null || flutterWaveConfig === void 0 ? void 0 : flutterWaveConfig.payment_options.split(',').length) > 1
+                                                ? 'Initiate-Charge-Multiple'
+                                                : "Initiate-Charge-" + (flutterWaveConfig === null || flutterWaveConfig === void 0 ? void 0 : flutterWaveConfig.payment_options)),
+                                            message: '15s',
+                                        }),
                                     })];
                             case 1:
                                 _b.sent();
                                 callback(response);
                                 return [3 /*break*/, 4];
-                            case 2: return [4 /*yield*/, fetch(" https://kgelfdz7mf.execute-api.us-east-1.amazonaws.com/staging/sendevent", {
-                                    method: "post",
+                            case 2: return [4 /*yield*/, fetch(' https://kgelfdz7mf.execute-api.us-east-1.amazonaws.com/staging/sendevent', {
+                                    method: 'post',
                                     headers: {
-                                        "Content-Type": "application/json",
+                                        'Content-Type': 'application/json',
                                     },
                                     body: JSON.stringify({
-                                        publicKey: (_a = flutterWaveConfig.public_key) !== null && _a !== void 0 ? _a : "",
-                                        language: "Flutterwave-React-v3",
-                                        version: "1.0.7",
-                                        title: "" + ((flutterWaveConfig === null || flutterWaveConfig === void 0 ? void 0 : flutterWaveConfig.payment_options.split(",").length) > 1 ? "Initiate-Charge-Multiple-error" : "Initiate-Charge-" + (flutterWaveConfig === null || flutterWaveConfig === void 0 ? void 0 : flutterWaveConfig.payment_options) + "-error"),
-                                        message: "15s"
-                                    })
+                                        publicKey: (_a = flutterWaveConfig.public_key) !== null && _a !== void 0 ? _a : '',
+                                        language: 'Flutterwave-React-v3',
+                                        version: '1.0.7',
+                                        title: "" + ((flutterWaveConfig === null || flutterWaveConfig === void 0 ? void 0 : flutterWaveConfig.payment_options.split(',').length) > 1
+                                            ? 'Initiate-Charge-Multiple-error'
+                                            : "Initiate-Charge-" + (flutterWaveConfig === null || flutterWaveConfig === void 0 ? void 0 : flutterWaveConfig.payment_options) + "-error"),
+                                        message: '15s',
+                                    }),
                                 })];
                             case 3:
                                 _b.sent();
@@ -197,8 +203,10 @@ function useFlutterwave(flutterWaveConfig) {
                 }); }, onclose: onClose, payment_options: (_c = flutterWaveConfig === null || flutterWaveConfig === void 0 ? void 0 : flutterWaveConfig.payment_options) !== null && _c !== void 0 ? _c : 'card, ussd, mobilemoney' });
             return (
             // @ts-ignore
+            // eslint-disable-next-line no-undef
             window.FlutterwaveCheckout &&
                 // @ts-ignore
+                // eslint-disable-next-line no-undef
                 window.FlutterwaveCheckout(flutterwaveArgs));
         }
     }
@@ -211,12 +219,41 @@ var FlutterWaveButton = function (_a) {
     return (createElement("button", { disabled: disabled, className: className, onClick: function () { return handleFlutterwavePayment({ callback: callback, onClose: onClose }); } }, text || children));
 };
 
+var FWContext = createContext({
+    handleFlutterwavePayment: function () { return null; },
+    onClose: function () { return null; },
+    callback: function () { return null; },
+});
+var Provider = FWContext.Provider;
+
+var FWProvider = function (_a) {
+    var onClose = _a.onClose, children = _a.children, callback = _a.callback, others = __rest(_a, ["onClose", "children", "callback"]);
+    var handleFlutterwavePayment = useFlutterwave(others);
+    return (createElement(Provider, { value: { handleFlutterwavePayment: handleFlutterwavePayment, callback: callback, onClose: onClose } }, children));
+};
+
+var FWConsumerChild = function (_a) {
+    var children = _a.children, ref = _a.ref;
+    var _b = useContext(FWContext), onClose = _b.onClose, callback = _b.callback, initializePayment = _b.handleFlutterwavePayment;
+    return children({
+        handleFlutterwavePayment: function () { return initializePayment({ callback: callback, onClose: onClose }); },
+        ref: ref,
+    });
+};
+var FWConsumer = forwardRef(function (_a, ref) {
+    var children = _a.children, callback = _a.callback, onClose = _a.onClose, others = __rest(_a, ["children", "callback", "onClose"]);
+    return (createElement(FWProvider, __assign({}, __assign({ onClose: onClose, callback: callback }, others)),
+        createElement(FWConsumerChild, { ref: ref }, children)));
+});
+
 /**
  * function to be called when you want to close payment
  */
 function closePaymentModal() {
-    document.getElementsByName('checkout')[0].setAttribute('style', 'position:fixed;top:0;left:0;z-index:-1;border:none;opacity:0;pointer-events:none;width:100%;height:100%;');
+    document
+        .getElementsByName('checkout')[0]
+        .setAttribute('style', 'position:fixed;top:0;left:0;z-index:-1;border:none;opacity:0;pointer-events:none;width:100%;height:100%;');
     document.body.style.overflow = '';
 }
 
-export { FlutterWaveButton, types as FlutterWaveTypes, closePaymentModal, useFlutterwave };
+export { FlutterWaveButton, FWConsumer as FlutterWaveConsumer, types as FlutterWaveTypes, closePaymentModal, useFlutterwave };
